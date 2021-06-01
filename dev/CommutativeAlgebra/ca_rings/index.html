@@ -68,7 +68,18 @@ julia&gt; g = a*b
 a*b
 
 julia&gt; typeof(g)
-fmpz_mpoly</code></pre><pre><code class="language-julia-repl">julia&gt; R, x = PolynomialRing(QQ, 2, &quot;x&quot;);
+fmpz_mpoly</code></pre><pre><code class="language-julia-repl">julia&gt; v = [&quot;x[1]&quot;, &quot;x[2]&quot;]
+2-element Array{String,1}:
+ &quot;x[1]&quot;
+ &quot;x[2]&quot;
+
+julia&gt; T, x = PolynomialRing(GF(3), v)
+(Multivariate Polynomial Ring in x[1], x[2] over Galois field with characteristic 3, gfp_mpoly[x[1], x[2]])
+
+julia&gt; x
+2-element Array{gfp_mpoly,1}:
+ x[1]
+ x[2]</code></pre><pre><code class="language-julia-repl">julia&gt; R, x = PolynomialRing(QQ, 2, &quot;x&quot;);
 
 julia&gt; x
 2-element Array{fmpq_mpoly,1}:
@@ -126,17 +137,14 @@ julia&gt; v = [1, 2, 3]
  2
  3
 
-julia&gt; R, (x, y, z) = grade(R, v)
-(Multivariate Polynomial Ring in x, y, z over Rational Field graded by
+julia&gt; S, (x, y, z) = grade(R, v)
+(Multivariate Polynomial Ring in x, y, z over Rational Field graded by 
   x -&gt; [1]
   y -&gt; [2]
   z -&gt; [3], Oscar.MPolyElem_dec{fmpq,fmpq_mpoly}[x, y, z])
 
-julia&gt; S, (x, y, z) = grade(R)
-(Multivariate Polynomial Ring in x, y, z over Rational Field graded by
-  x -&gt; [1]
-  y -&gt; [2]
-  z -&gt; [3] graded by
+julia&gt; T, (x, y, z) = grade(R)
+(Multivariate Polynomial Ring in x, y, z over Rational Field graded by 
   x -&gt; [1]
   y -&gt; [1]
-  z -&gt; [1], Oscar.MPolyElem_dec{fmpq,fmpq_mpoly}[x, y, z])</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/oscar-system/Oscar.jl/blob/a79a7af0320acbf950ca8b237b2d16727ef69b16/src/Rings/mpoly-graded.jl#L59">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../ca/">« Introduction</a><a class="docs-footer-nextpage" href="../ca_ideals/">Ideals in Polynomial Rings »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 1 June 2021 10:24">Tuesday 1 June 2021</span>. Using Julia version 1.5.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+  z -&gt; [1], Oscar.MPolyElem_dec{fmpq,fmpq_mpoly}[x, y, z])</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/oscar-system/Oscar.jl/blob/99d6f719d54ae0ec5da0573ca200df7d943b9a54/src/Rings/mpoly-graded.jl#L59">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../ca/">« Introduction</a><a class="docs-footer-nextpage" href="../ca_ideals/">Ideals in Polynomial Rings »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 1 June 2021 11:21">Tuesday 1 June 2021</span>. Using Julia version 1.5.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
