@@ -21,18 +21,18 @@ julia&gt; K, a = FiniteField(x^2 + 1, &quot;a&quot;)
 (Finite field of degree 2 over F_3, a)</code></pre><h6 id="Purely-transcendental-extensions-of-\\mathbb{Q}-or-\\mathbb{F}_p"><a class="docs-heading-anchor" href="#Purely-transcendental-extensions-of-\\mathbb{Q}-or-\\mathbb{F}_p">Purely transcendental extensions of <span>$\mathbb{Q}$</span> or <span>$\mathbb{F}_p$</span></a><a id="Purely-transcendental-extensions-of-\\mathbb{Q}-or-\\mathbb{F}_p-1"></a><a class="docs-heading-anchor-permalink" href="#Purely-transcendental-extensions-of-\\mathbb{Q}-or-\\mathbb{F}_p" title="Permalink"></a></h6><pre><code class="language-julia-repl">julia&gt; T, t = PolynomialRing(QQ, :t=&gt;1:2);
 
 julia&gt; QT = FractionField(T)
-Fraction field of Multivariate Polynomial Ring in t1, t2 over Rational Field
+Fraction field of Multivariate Polynomial Ring in t[1], t[2] over Rational Field
 
 julia&gt; parent(t[1])
-Multivariate Polynomial Ring in t1, t2 over Rational Field
+Multivariate Polynomial Ring in t[1], t[2] over Rational Field
 
 julia&gt; parent(1//t[1])
-Fraction field of Multivariate Polynomial Ring in t1, t2 over Rational Field
+Fraction field of Multivariate Polynomial Ring in t[1], t[2] over Rational Field
 
 julia&gt; U, u = PolynomialRing(GF(3), :u=&gt;1:2);
 
 julia&gt; QU = FractionField(U)
-Fraction field of Multivariate Polynomial Ring in u1, u2 over Galois field with characteristic 3</code></pre><h6 id="The-ring-of-integers-\\mathbb{ZZ}"><a class="docs-heading-anchor" href="#The-ring-of-integers-\\mathbb{ZZ}">The ring of integers <span>$\mathbb{ZZ}$</span></a><a id="The-ring-of-integers-\\mathbb{ZZ}-1"></a><a class="docs-heading-anchor-permalink" href="#The-ring-of-integers-\\mathbb{ZZ}" title="Permalink"></a></h6><pre><code class="language-julia-repl">julia&gt; ZZ
+Fraction field of Multivariate Polynomial Ring in u[1], u[2] over Galois field with characteristic 3</code></pre><h6 id="The-ring-of-integers-\\mathbb{ZZ}"><a class="docs-heading-anchor" href="#The-ring-of-integers-\\mathbb{ZZ}">The ring of integers <span>$\mathbb{ZZ}$</span></a><a id="The-ring-of-integers-\\mathbb{ZZ}-1"></a><a class="docs-heading-anchor-permalink" href="#The-ring-of-integers-\\mathbb{ZZ}" title="Permalink"></a></h6><pre><code class="language-julia-repl">julia&gt; ZZ
 Integer Ring</code></pre><h2 id="Constructions"><a class="docs-heading-anchor" href="#Constructions">Constructions</a><a id="Constructions-1"></a><a class="docs-heading-anchor-permalink" href="#Constructions" title="Permalink"></a></h2><p>The basic constructor for multivariate polynomial rings reads as follows:</p><pre><code class="language-">PolynomialRing(C::Ring, v::Vector{String}; ordering=:lex)</code></pre><p>Its use and that of additional constructors which allow for indexed variables is indicated below.</p><h6 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h6><pre><code class="language-julia-repl">julia&gt; R, (x, y, z) = PolynomialRing(QQ, [&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])
 (Multivariate Polynomial Ring in x, y, z over Rational Field, fmpq_mpoly[x, y, z])
 
@@ -93,10 +93,10 @@ julia&gt; x[1]^2-x[2]
 x1^2 - x2
 
 julia&gt; S, a, b, c= PolynomialRing(QQ, &quot;a&quot;=&gt;1:3, &quot;b&quot;=&gt;1:3, &quot;c&quot;=&gt;1:5:10)
-(Multivariate Polynomial Ring in 8 variables a1, a2, a3, b1, ..., c6 over Rational Field, fmpq_mpoly[a1, a2, a3], fmpq_mpoly[b1, b2, b3], fmpq_mpoly[c1, c6])
+(Multivariate Polynomial Ring in 8 variables a[1], a[2], a[3], b[1], ..., c[6] over Rational Field, fmpq_mpoly[a[1], a[2], a[3]], fmpq_mpoly[b[1], b[2], b[3]], fmpq_mpoly[c[1], c[6]])
 
 julia&gt; a, b, c
-(fmpq_mpoly[a1, a2, a3], fmpq_mpoly[b1, b2, b3], fmpq_mpoly[c1, c6])</code></pre><pre><code class="language-julia-repl">julia&gt; R, x = @PolynomialRing(QQ, x[1:3]);
+(fmpq_mpoly[a[1], a[2], a[3]], fmpq_mpoly[b[1], b[2], b[3]], fmpq_mpoly[c[1], c[6]])</code></pre><pre><code class="language-julia-repl">julia&gt; R, x = @PolynomialRing(QQ, x[1:3]);
 
 julia&gt; x
 3-element Array{fmpq_mpoly,1}:
@@ -147,4 +147,4 @@ julia&gt; T, (x, y, z) = grade(R)
 (Multivariate Polynomial Ring in x, y, z over Rational Field graded by 
   x -&gt; [1]
   y -&gt; [1]
-  z -&gt; [1], Oscar.MPolyElem_dec{fmpq,fmpq_mpoly}[x, y, z])</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/oscar-system/Oscar.jl/blob/d0e20f766de3af240e31611e5a7671c35068f870/src/Rings/mpoly-graded.jl#L59">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../ca/">« Introduction</a><a class="docs-footer-nextpage" href="../ca_ideals/">Ideals in Polynomial Rings »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 4 June 2021 14:39">Friday 4 June 2021</span>. Using Julia version 1.5.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+  z -&gt; [1], Oscar.MPolyElem_dec{fmpq,fmpq_mpoly}[x, y, z])</code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/oscar-system/Oscar.jl/blob/80f5fbbd998903d5641caf39e57e629524d37bea/src/Rings/mpoly-graded.jl#L59">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../ca/">« Introduction</a><a class="docs-footer-nextpage" href="../ca_ideals/">Ideals in Polynomial Rings »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 7 June 2021 13:43">Monday 7 June 2021</span>. Using Julia version 1.5.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
