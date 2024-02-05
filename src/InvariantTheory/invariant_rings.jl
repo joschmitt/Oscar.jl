@@ -192,17 +192,159 @@ end
 
 right_action(f::MPolyRingElem, p::PermGroupElem) = right_action(parent(f), p)(f)
 
+function is_invariant(f::MPolyRingElem, G::AbstractAlgebra.Group)
+  return all(g -> f^g == f, gens(G))
+end
+
+function Base.in(f::MPolyRingElem, RG::FinGroupInvarRing)
+  @req parent(f) === polynomial_ring(RG) "Polynomial rings do not coincide"
+  return is_invariant(f, group(RG))
+end
+
 ################################################################################
 #
 #  Reynolds operator
 #
 ################################################################################
 
+# Check whether d*f has coefficients which are within distance b of an integer
+function _is_approx_integral(f::QQMPolyRingElem, d::ZZRingElem, b::QQFieldElem = QQFieldElem(1, 1))
+  g = MPolyBuildCtx(parent(f))
+  for (c, e) in zip(AbstractAlgebra.coefficients(f), AbstractAlgebra.exponent_vectors(f))
+    cd = c*d
+    if abs(round(cd) - cd) < b
+      push_term!(g, round(cd)//d, e)
+    else
+      return false, finish(g)
+    end
+  end
+  return true, finish(g)
+end
+
+function _is_approx_integral(f::AbstractAlgebra.Generic.MPoly{AbsSimpleNumFieldElem}, d::ZZRingElem, b::QQFieldElem = QQFieldElem(1, 1))
+  g = MPolyBuildCtx(parent(f))
+  K = coefficient_ring(parent(f))
+  for (c, e) in zip(AbstractAlgebra.coefficients(f), AbstractAlgebra.exponent_vectors(f))
+    cd = c*d
+    roundcd = K(map(round, coefficients(cd)))
+    if all(x -> abs(x) < b, coefficients(roundcd - cd))
+      push_term!(g, roundcd//d, e)
+    else
+      return false, finish(g)
+    end
+  end
+  return true, finish(g)
+end
+
+#function _round(f::QQMPolyRingElem, d::ZZRingElem)
+#  g = MPolyBuildCtx(parent(f))
+#  for (c, e) in zip(AbstractAlgebra.coefficients(f), AbstractAlgebra.exponent_vectors(f))
+#    cd = round(c*d)
+#    push_term!(g, cd//d, e)
+#  end
+#  return finish(g)
+#end
+
+# Return T in GL_n(QQ) such that TgT^-1 is in GL_n(ZZ) for all g in G.
+function _make_integral(G::MatrixGroup{<:QQFieldElem})
+  @assert is_finite(G)
+  if all(g -> all(is_integral, matrix(g)), gens(G))
+    return identity_matrix(QQ, degree(G))
+  end
+
+  # Build a full G-invariant ZZ-lattice
+  # TODO: try to use not all of G (but the generators are unfortunately not enough)
+  L = reduce(vcat, [ FakeFmpqMat(matrix(g)) for g in G ])
+  T = hnf(L)
+  # The HNF is "lowerleft"
+  return view(QQMatrix(T), nrows(L) - ncols(L) + 1:nrows(L), 1:ncols(L))
+end
+
+# Theorem 2.1 in Plesken, Souvignier "Constructing rational representations of
+# finite groups"
+function reynolds_operator_approximate(RG::FinGroupInvarRing{FldT, GrpT, PolyRingElemT}, f::PolyRingElemT; attempts::Int = 100) where {FldT, GrpT, PolyRingElemT}
+  @assert is_zero(characteristic(coefficient_ring(RG)))
+
+  @assert is_homogeneous(f)
+
+  t_precomp = 0.0
+  t_h = 0.0
+  t_round = 0.0
+  t_check = 0.0
+  t = 0.0
+
+  K = coefficient_ring(RG)
+  R = polynomial_ring(RG)
+  G = group(RG)
+  E = gens(G)
+  t = time()
+  filter!(!is_one, E)
+  #T = _make_integral(G)
+  T = identity_matrix(K, degree(G))
+  invT = inv(T)
+  # The action by the element e = \prod_{g\in E} (1//2(1 - g\in E)) in the
+  # group algebra QQG on a polynomial
+  # See the paper Section 3: acting by this element is supposed to lead to
+  # "drastic improvements".
+  function action_by_e(h::PolyRingElemT)
+    for g in E
+      # The paper puts a minus instead of a plus. I don't understand why this
+      # should be true or work. (-g is not in G)
+      h = 1//2*(h + right_action(h, T*g*inv(T)))
+    end
+    return h
+  end
+
+  #actions = [ right_action(R, T*g*invT) for g in E ]
+  t_precomp = time() - t
+  attempt = 0
+  mon_cache = Dict{typeof(f), typeof(f)}()
+  while attempt <= attempts
+    attempt += 1
+    if is_zero(attempt % 100)
+      #@show attempt
+    end
+
+    t = time()
+    # The commented out parts would be the action by 1/|E|*sum_{g in E} g
+    #h = deepcopy(f) # action by 1
+    f = action_by_e(f)
+    #for (c, m) in zip(AbstractAlgebra.coefficients(f), AbstractAlgebra.monomials(f))
+    #  mm = get!(mon_cache, m) do
+    #    return sum( action(m) for action in actions )
+    #  end
+    #  h = addeq!(h, mm*c)
+    #end
+    t_h += time() - t
+    #f = h*K(1//(length(E) + 1)) # + 1 for the action by 1
+    t = time()
+    fl, g = _is_approx_integral(forget_grading(f), order(ZZRingElem, G))
+    t_round += time() - t
+    if fl
+      gg = polynomial_ring(RG)(g)
+      t = time()
+      #if all(a -> a(gg) == gg, actions)
+      #aoei = all(a -> a(gg) == gg, actions)
+      aoei = (right_action(gg, T) in RG)
+      t_check += time() - t
+      if aoei
+        #@show attempt
+        #@show t_precomp
+        #@show t_h
+        #@show t_round
+        #@show t_check
+        return right_action(gg, T)
+      end
+    end
+  end
+  error("Did not converge to an invariant in $attempts attempts")
+end
+
 function reynolds_operator(IR::FinGroupInvarRing{FldT, GrpT, PolyRingElemT}) where {FldT, GrpT, PolyRingElemT}
   @assert !is_modular(IR)
 
   if isdefined(IR, :reynolds_operator)
-    return nothing
+    return IR.reynolds_operator
   end
 
   actions = [ right_action(polynomial_ring(IR), g) for g in group(IR) ]
