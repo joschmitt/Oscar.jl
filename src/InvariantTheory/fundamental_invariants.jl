@@ -101,22 +101,26 @@ function fundamental_invariants_via_king(RG::FinGroupInvarRing, beta::Int=0)
     time_lin_alg = ngens(group(RG)) * length(monomials_of_degree(R, d))^2
     X = 1 / 2 * order(Int, group(RG)) # magical extra factor (see above)
 
-    if X * time_rey < time_lin_alg
-      # Reynolds approach
-      invs = (
-        _cast_in_internal_poly_ring(
-          RG, reynolds_operator(RG, _cast_in_external_poly_ring(RG, Rgraded(m)))
-        ) for m in mons
-      )
-    else
-      # Linear algebra approach
-      invs = (
-        _cast_in_internal_poly_ring(RG, f) for f in iterate_basis(RG, d, :linear_algebra)
-      )
-    end
+    #if X * time_rey < time_lin_alg
+    #  # Reynolds approach
+    #  invs = (
+    #    _cast_in_internal_poly_ring(
+    #      RG, reynolds_operator(RG, _cast_in_external_poly_ring(RG, Rgraded(m)))
+    #    ) for m in mons
+    #  )
+    #else
+    #  # Linear algebra approach
+    #  invs = (
+    #    _cast_in_internal_poly_ring(RG, f) for f in iterate_basis(RG, d, :linear_algebra)
+    #  )
+    #end
+    Omega = gset(group(RG), on_indeterminates, mons)
+    #invs = ( sum(orbit(group(RG), on_indeterminates, m)) for m in mons )
+    invs = ( sum(o) for o in orbits(Omega) )
 
     for m in invs
-      f = forget_grading(m)
+      #f = forget_grading(m)
+      f = m
       if is_zero(f)
         continue
       end
