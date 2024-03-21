@@ -20,12 +20,21 @@ function _groebner_basis(I::MPolyIdeal, d::Int; ordering::MonomialOrdering = def
 end
 
 # [Kin13, p. 5] See also [DK15, Algorithm 3.8.2]
-function fundamental_invariants_via_king(RG::FinGroupInvarRing, beta::Int = 0)
+function fundamental_invariants_via_king(RG::FinGroupInvarRing, beta::Int = 0; ordering::Union{MonomialOrdering, Nothing} = nothing)
   @assert !is_modular(RG)
 
   Rgraded = _internal_polynomial_ring(RG)
   R = forget_grading(Rgraded)
-  ordR = degrevlex(gens(R))
+
+  if ordering !== nothing
+    ordR = ordering
+  else
+    ordR = degrevlex(gens(R))
+  end
+
+  # If we use degrevlex, we can use `divrem` from AbstractAlgebra.
+  # This is faster than the OSCAR/Singular `reduce`.
+  use_aa_divrem = ordR == degrevlex(gens(R))
 
   S = elem_type(R)[]
   G = IdealGens(R, elem_type(R)[], ordR)
@@ -114,7 +123,11 @@ function fundamental_invariants_via_king(RG::FinGroupInvarRing, beta::Int = 0)
         continue
       end
 
-      _, g = divrem(f, GO)
+      if use_aa_divrem
+        _, g = divrem(f, GO)
+      else
+        g = reduce(f, GO, ordering = ordR)
+      end
       if is_zero(g)
         continue
       end
