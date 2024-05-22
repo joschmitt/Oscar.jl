@@ -628,7 +628,9 @@ function Hecke.roots(G::GaloisCtx{Hecke.qAdicRootCtx}, pr::Int=5; raw::Bool = fa
   if raw
     return b
   else
-    return leading_coefficient(G.f) .* b
+    return with_precision(parent(b[1]), pr) do
+      leading_coefficient(G.f) .* b
+    end
   end
 end
 

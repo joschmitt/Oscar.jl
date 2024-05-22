@@ -374,7 +374,7 @@ end
 function conjugates(C::GaloisCtx, S::SubField, a::QQFieldElem, pr::Int = 10)
   rt = roots(C, pr)
   @assert S.fld == QQ
-  return [parent(rt[1])(a)]
+  return [parent(rt[1])(a, precision = pr)]
 end
 
 function recognize(C::GaloisCtx, S::SubField, I::SLPoly)
@@ -534,7 +534,6 @@ function Oscar.solve(f::ZZPolyRingElem; max_prec::Int=typemax(Int), show_radical
   @vtime :SolveRadical 1 All = _fixed_field(C, s, invar = gens(S)[pp], max_prec = max_prec)
                     #here one could actually specify the invariant
                           #at least for the cyclos
-
   fld_arr = [All]
   while fld_arr[1].fld !== QQ
     pushfirst!(fld_arr, fld_arr[1].coeff_field)
@@ -641,10 +640,12 @@ end
 function basis_at_prec(C::GaloisCtx, S::SubField, pr)
   rt = roots(C, pr)
   if isdefined(S, :ts)
-    rt = map(S.ts, rt)
+    rt = with_precision(parent(rt[1]), pr) do
+      map(S.ts, rt)
+    end
   end
   for i=1:length(S.conj)
-    S.num_basis[1, i] = one(parent(rt[1]))
+    S.num_basis[1, i] = one(parent(rt[1]), precision = pr)
     c = S.conj[i]
     p = evaluate(S.pe, c, rt)
     S.num_basis[2, i] = p
@@ -683,7 +684,9 @@ function conj_from_basis(C::GaloisCtx, S::SubField, a, pr)
   nb = S.num_basis
   K = base_ring(nb)
   coef = zero_matrix(K, 1, degree(S.fld))
-  res = zero_matrix(K, 1, ncols(nb))
+  res = with_precision(K, pr) do
+    zero_matrix(K, 1, ncols(nb))
+  end
   tmp = zero_matrix(K, 1, ncols(nb))
   for i=0:degree(S.fld)-1
     d = conjugates(C, S.coeff_field, coeff(a, i), pr)
@@ -699,7 +702,7 @@ end
 function dual_basis_conj(C::GaloisCtx, S::SubField, pr::Any = 10)
   r = roots(C, pr)
   if S.fld == QQ
-    return [[parent(r[1])(1)]]
+    return [[parent(r[1])(1, precision = pr)]]
   end
   dbc = []
   for b = dual_basis_abs(S)
