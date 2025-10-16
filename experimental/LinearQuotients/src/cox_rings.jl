@@ -350,7 +350,7 @@ function cox_ring_of_qq_factorial_terminalization(L::LinearQuotient)
   is_subgroup_of_sl(G) || throw(Hecke.NotImplemented())
 
   # Compute the Cox ring of L itself
-  RVG, RVGtoR = cox_ring(L)
+  RVG, RVGtoR = cox_ring(L, algo_rels = :linear_algebra)
   @vprint :LinearQuotients "Computed K[V]^[G, G]\n"
 
   K = base_ring(L)
@@ -673,9 +673,10 @@ function relations(
     Ihom = homogenize_at_last_variable(Ihom, T)
   end
 
-  @vprint :LinearQuotients "Relations: Computing Gröbner basis\n"
   # We need homogeneous generators (with respect to all gradings) of Ihom
-  gb = groebner_basis(Ihom; complete_reduction=true)
+  homgens = reduce(
+    vcat, [collect(values(homogeneous_components(gen(Ihom, i)))) for i in 1:ngens(Ihom)]
+  )
   T, _ = graded_polynomial_ring(
     coefficient_ring(S),
     append!(["X$i" for i in 1:ngens(S)], ["Y$i" for i in 1:length(juniors)]);
@@ -686,7 +687,7 @@ function relations(
   @vprint :LinearQuotients "Relations: Finishing up\n"
   r = [order(s) for s in juniors]
   rels = Vector{elem_type(T)}()
-  for f in gb
+  for f in homgens
     F = MPolyBuildCtx(T)
     for (c, e) in zip(AbstractAlgebra.coefficients(f), AbstractAlgebra.exponent_vectors(f))
       ee = deepcopy(e)
