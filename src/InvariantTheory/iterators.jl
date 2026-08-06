@@ -413,9 +413,9 @@ function iterate_basis_orbit_sums(R::FinGroupInvarRing{T, <:PermGroup}, d::Int) 
   # Generate all exponent vectors of monomials of degree d
   exps = data.(collect(weak_compositions(d, ngens(S), inplace = false)))
 
-  mon_orbits = orbits(gset(group(R), permuted, exps))
+  mon_orbits = iterate_orbits(gset(group(R), permuted, exps))
 
-  k = length(mon_orbits)
+  k = dimension_via_molien_series(Int, R, d)
   N = zero_matrix(base_ring(S), 0, 0)
 
   return FinGroupInvarRingBasisIterator{
@@ -564,18 +564,17 @@ function iterate_linear_algebra(BI::FinGroupInvarRingBasisIterator, state::Union
   return inv(AbstractAlgebra.leading_coefficient(f)) * f, s + 1
 end
 
-function iterate_orbit_sums(BI::FinGroupInvarRingBasisIterator, state::Union{Int, Nothing} = nothing)
+function iterate_orbit_sums(BI::FinGroupInvarRingBasisIterator, state = nothing)
   @assert BI.method === :orbit_sums
-  s = isnothing(state) ? 1 : state
-  if s > BI.dim
-    return nothing
-  end
+  os = iterate(BI.orbits, state)
+  isnothing(os) && return nothing
+  o, s = os
 
   R = polynomial_ring(BI.R)
   K = coefficient_ring(R)
-  orb = elements(BI.orbits[s])
+  orb = elements(o)
   f = R([one(K) for _ in 1:length(orb)], orb)
-  return f, s + 1
+  return f, s
 end
 
 ################################################################################

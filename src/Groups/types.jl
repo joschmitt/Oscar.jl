@@ -733,6 +733,10 @@ The fields are
   end
 end
 
+mutable struct OrbitIterator{T, S}
+  gset::GSetByElements{T, S}
+end
+
 ################################################################################
 #
 #   Conjugacy Classes
