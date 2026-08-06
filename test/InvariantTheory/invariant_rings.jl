@@ -193,6 +193,11 @@ end
   t = gens(base_ring(F))[1]
   @test mol == 1//((1 - t^3) * (1 - t^2) * (1 - t))
 
+  mol = molien_series(RGM)
+  F = parent(mol)
+  t = gens(base_ring(F))[1]
+  @test mol == 1//((1 - t^3) * (1 - t^2) * (1 - t))
+
   # S4 (natural permutation module in characteristic 5)
   s4 = symmetric_group(4)
   S, t = QQ[:t]
